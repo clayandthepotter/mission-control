@@ -1,64 +1,106 @@
-import Image from "next/image";
+import Link from "next/link";
+import { getAllAgentStatuses, parseSessionState } from "@/lib/agents";
+import { fetchCommits } from "@/lib/github";
 
-export default function Home() {
+export const revalidate = 120;
+
+export default async function DashboardPage() {
+  const [statuses, commits] = await Promise.all([
+    getAllAgentStatuses(),
+    fetchCommits(10),
+  ]);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gray-950 text-gray-100">
+      {/* Header */}
+      <header className="border-b border-gray-800 px-6 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">Mission Control</h1>
+            <p className="text-sm text-gray-500">LeadsPanther AI Organization</p>
+          </div>
+          <nav className="flex gap-4 text-sm">
+            <Link href="/" className="text-gray-300 hover:text-white">Overview</Link>
+            <Link href="/tasks" className="text-gray-500 hover:text-white">Tasks</Link>
+            <Link href="/activity" className="text-gray-500 hover:text-white">Activity</Link>
+          </nav>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      </header>
+
+      <main className="mx-auto max-w-7xl px-6 py-8">
+        {/* Agent Grid */}
+        <section>
+          <h2 className="mb-4 text-lg font-semibold text-gray-300">Agents</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {statuses.map(({ agent, sessionState, todoSummary }) => {
+              const fields = sessionState ? parseSessionState(sessionState) : {};
+              return (
+                <Link
+                  key={agent.id}
+                  href={`/agent/${agent.id}`}
+                  className="group rounded-xl border border-gray-800 bg-gray-900 p-5 transition hover:border-gray-600 hover:bg-gray-800/60"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{agent.emoji}</span>
+                    <div>
+                      <div className="font-semibold">{agent.name}</div>
+                      <div className="text-xs text-gray-500">{agent.role}</div>
+                    </div>
+                  </div>
+                  <div className="mt-4 space-y-2 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-500">Status</span>
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        fields.status === "Active"
+                          ? "bg-emerald-500/10 text-emerald-400"
+                          : "bg-gray-700 text-gray-400"
+                      }`}>
+                        {fields.status || (sessionState ? "Connected" : "No data")}
+                      </span>
+                    </div>
+                    {fields.lastUpdated && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-500">Updated</span>
+                        <span className="text-gray-400">{fields.lastUpdated}</span>
+                      </div>
+                    )}
+                    {todoSummary && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-500">Tasks</span>
+                        <span className="text-gray-400">{todoSummary.pending} pending · {todoSummary.completed} done</span>
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Recent Activity */}
+        <section className="mt-10">
+          <h2 className="mb-4 text-lg font-semibold text-gray-300">Recent Activity</h2>
+          <div className="rounded-xl border border-gray-800 bg-gray-900 divide-y divide-gray-800">
+            {commits.length === 0 && (
+              <div className="p-6 text-center text-gray-500">No recent activity</div>
+            )}
+            {commits.map((commit) => (
+              <div key={commit.sha} className="flex items-start gap-4 px-5 py-3">
+                <code className="mt-0.5 shrink-0 rounded bg-gray-800 px-1.5 py-0.5 text-xs text-gray-400 font-mono">
+                  {commit.sha}
+                </code>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm">{commit.message}</div>
+                  <div className="mt-0.5 text-xs text-gray-500">
+                    {commit.author} · {new Date(commit.date).toLocaleDateString("en-US", {
+                      month: "short", day: "numeric", hour: "2-digit", minute: "2-digit",
+                    })}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
     </div>
   );

@@ -66,6 +66,7 @@ export default async function TasksPage() {
           <nav className="flex gap-4 text-sm">
             <Link href="/" className="text-gray-500 hover:text-white">Overview</Link>
             <Link href="/products" className="text-gray-500 hover:text-white">Products</Link>
+            <Link href="/costs" className="text-gray-500 hover:text-white">Costs</Link>
             <Link href="/tasks" className="text-gray-300 hover:text-white">Tasks</Link>
             <Link href="/activity" className="text-gray-500 hover:text-white">Activity</Link>
           </nav>

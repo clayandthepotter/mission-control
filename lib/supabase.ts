@@ -1,10 +1,10 @@
 /**
  * Server-side Supabase client using PostgREST API.
- * Env vars needed on Vercel: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+ * Env vars on Vercel: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SECRET_KEY
  */
 
-const SUPABASE_URL = process.env.SUPABASE_URL ?? "";
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const SUPABASE_KEY = process.env.SUPABASE_SECRET_KEY ?? "";
 
 function supabaseHeaders() {
   return {

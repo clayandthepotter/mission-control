@@ -1,20 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { IBM_Plex_Sans, Bebas_Neue } from "next/font/google";
 import "./globals.css";
+import { Sidebar } from "./components/Sidebar";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const ibmPlexSans = IBM_Plex_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const bebas = Bebas_Neue({
+  variable: "--font-display",
   subsets: ["latin"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
   title: "Mission Control — LeadsPanther",
-  description: "Agent management dashboard for the LeadsPanther AI organization",
+  description: "Operational dashboard for the LeadsPanther AI organization",
 };
 
 export default function RootLayout({
@@ -24,10 +27,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${ibmPlexSans.variable} ${bebas.variable} antialiased`}>
+        <div className="flex min-h-screen">
+          <Sidebar />
+          <main className="flex-1 overflow-y-auto">{children}</main>
+        </div>
       </body>
     </html>
   );

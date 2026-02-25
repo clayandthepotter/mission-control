@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { fetchFile } from "@/lib/github";
 
 export const revalidate = 120;
@@ -52,8 +51,8 @@ function parseRanking(content: string): string[] {
 const demandColors: Record<string, string> = {
   High: "bg-emerald-500/10 text-emerald-400",
   Medium: "bg-amber-500/10 text-amber-400",
-  Low: "bg-gray-700 text-gray-400",
-  Unknown: "bg-gray-700 text-gray-500",
+  Low: "bg-white/5 text-neutral-400",
+  Unknown: "bg-white/5 text-neutral-500",
 };
 
 export default async function ProductsPage() {
@@ -62,29 +61,13 @@ export default async function ProductsPage() {
   const ranking = content ? parseRanking(content) : [];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100">
-      <header className="border-b border-gray-800 px-6 py-4">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">Mission Control</h1>
-            <p className="text-sm text-gray-500">LeadsPanther AI Organization</p>
-          </div>
-          <nav className="flex gap-4 text-sm">
-            <Link href="/" className="text-gray-500 hover:text-white">Overview</Link>
-            <Link href="/products" className="text-gray-300 hover:text-white">Products</Link>
-            <Link href="/costs" className="text-gray-500 hover:text-white">Costs</Link>
-            <Link href="/tasks" className="text-gray-500 hover:text-white">Tasks</Link>
-            <Link href="/activity" className="text-gray-500 hover:text-white">Activity</Link>
-          </nav>
-        </div>
-      </header>
+    <div className="px-6 py-8 max-w-7xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight mb-1" style={{ fontFamily: "var(--font-display)" }}>Products</h1>
+        <p className="text-sm" style={{ color: "var(--muted-2)" }}>Products ranked by delivery count, revenue, and market demand signals.</p>
+      </div>
 
-      <main className="mx-auto max-w-7xl px-6 py-8">
         <section>
-          <h2 className="mb-2 text-lg font-semibold text-gray-300">Product Demand Ranking</h2>
-          <p className="mb-6 text-sm text-gray-500">
-            Products ranked by delivery count, revenue, and market demand signals.
-          </p>
 
           {/* Ranking Cards */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-10">
@@ -93,25 +76,25 @@ export default async function ProductsPage() {
               return (
                 <div
                   key={name}
-                  className="rounded-xl border border-gray-800 bg-gray-900 p-5"
+                  className="lp-card-hover rounded-xl p-5" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}
                 >
                   <div className="flex items-center gap-3 mb-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-800 text-sm font-bold text-gray-300">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold" style={{ background: "var(--surface)", color: "var(--muted)" }}>
                       {i + 1}
                     </span>
                     <div className="font-semibold">{name}</div>
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Deliveries</span>
-                      <span className="text-gray-300">{cat?.deliveries ?? 0}</span>
+                      <span style={{ color: "var(--muted-2)" }}>Deliveries</span>
+                      <span style={{ color: "var(--muted)" }}>{cat?.deliveries ?? 0}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Revenue</span>
-                      <span className="text-gray-300">{cat?.revenue ?? "$0"}</span>
+                      <span style={{ color: "var(--muted-2)" }}>Revenue</span>
+                      <span style={{ color: "var(--muted)" }}>{cat?.revenue ?? "$0"}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Demand</span>
+                      <span style={{ color: "var(--muted-2)" }}>Demand</span>
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${demandColors[cat?.demandLevel ?? "Unknown"]}`}>
                         {cat?.demandLevel ?? "Unknown"}
                       </span>
@@ -123,9 +106,9 @@ export default async function ProductsPage() {
           </div>
 
           {/* Full Table */}
-          <h3 className="mb-3 text-base font-semibold text-gray-300">All Categories</h3>
-          <div className="rounded-xl border border-gray-800 bg-gray-900 overflow-hidden">
-            <div className="grid grid-cols-5 gap-4 px-5 py-3 text-xs font-medium text-gray-500 border-b border-gray-800">
+          <h3 className="mb-3 text-base font-semibold" style={{ color: "var(--muted)" }}>All Categories</h3>
+          <div className="rounded-xl overflow-hidden" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}>
+            <div className="grid grid-cols-5 gap-4 px-5 py-3 text-xs font-medium" style={{ color: "var(--muted-2)", borderBottom: "1px solid var(--border)" }}>
               <div>Category</div>
               <div className="text-center">Deliveries</div>
               <div className="text-center">Revenue</div>
@@ -133,11 +116,11 @@ export default async function ProductsPage() {
               <div className="text-center">Demand</div>
             </div>
             {categories.map((cat) => (
-              <div key={cat.name} className="grid grid-cols-5 gap-4 px-5 py-3 text-sm border-b border-gray-800 last:border-0">
+              <div key={cat.name} className="grid grid-cols-5 gap-4 px-5 py-3 text-sm last:border-0" style={{ borderBottom: "1px solid var(--border)" }}>
                 <div className="font-medium">{cat.name}</div>
-                <div className="text-center text-gray-400">{cat.deliveries}</div>
-                <div className="text-center text-gray-400">{cat.revenue}</div>
-                <div className="text-center text-gray-400">{cat.satisfaction}</div>
+                <div className="text-center" style={{ color: "var(--muted)" }}>{cat.deliveries}</div>
+                <div className="text-center" style={{ color: "var(--muted)" }}>{cat.revenue}</div>
+                <div className="text-center" style={{ color: "var(--muted)" }}>{cat.satisfaction}</div>
                 <div className="text-center">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${demandColors[cat.demandLevel]}`}>
                     {cat.demandLevel}
@@ -146,13 +129,12 @@ export default async function ProductsPage() {
               </div>
             ))}
             {categories.length === 0 && (
-              <div className="p-6 text-center text-gray-500">
+              <div className="p-6 text-center" style={{ color: "var(--muted-2)" }}>
                 No product data available. Push product-demand.md to the repo.
               </div>
             )}
           </div>
         </section>
-      </main>
     </div>
   );
 }

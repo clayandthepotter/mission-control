@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { fetchFile } from "@/lib/github";
 
 export const revalidate = 120;
@@ -74,42 +73,27 @@ export default async function CostsPage() {
   }, 0);
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100">
-      <header className="border-b border-gray-800 px-6 py-4">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">Mission Control</h1>
-            <p className="text-sm text-gray-500">LeadsPanther AI Organization</p>
-          </div>
-          <nav className="flex gap-4 text-sm">
-            <Link href="/" className="text-gray-500 hover:text-white">Overview</Link>
-            <Link href="/products" className="text-gray-500 hover:text-white">Products</Link>
-            <Link href="/costs" className="text-gray-300 hover:text-white">Costs</Link>
-            <Link href="/tasks" className="text-gray-500 hover:text-white">Tasks</Link>
-            <Link href="/activity" className="text-gray-500 hover:text-white">Activity</Link>
-          </nav>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-6 py-8">
+    <div className="px-6 py-8 max-w-7xl mx-auto">
+      <h1 className="text-2xl font-bold tracking-tight mb-1" style={{ fontFamily: "var(--font-display)" }}>Costs</h1>
+      <p className="text-sm mb-8" style={{ color: "var(--muted-2)" }}>Operational cost tracking</p>
         {/* Summary Cards */}
         <section className="mb-10">
-          <h2 className="mb-4 text-lg font-semibold text-gray-300">Cost Overview</h2>
+          <h2 className="mb-4 text-lg font-semibold" style={{ color: "var(--muted)" }}>Cost Overview</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-              <div className="text-sm text-gray-500">Current Monthly</div>
+            <div className="rounded-xl p-5" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}>
+              <div className="text-sm" style={{ color: "var(--muted-2)" }}>Current Monthly</div>
               <div className="mt-1 text-2xl font-bold text-emerald-400">
                 ~${totalMonthlyCost.toFixed(0)}
               </div>
             </div>
-            <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-              <div className="text-sm text-gray-500">Cost Per Lead</div>
+            <div className="rounded-xl p-5" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}>
+              <div className="text-sm" style={{ color: "var(--muted-2)" }}>Cost Per Lead</div>
               <div className="mt-1 text-2xl font-bold text-blue-400">
                 {costPerLead ?? "—"}
               </div>
             </div>
-            <div className="rounded-xl border border-gray-800 bg-gray-900 p-5">
-              <div className="text-sm text-gray-500">Margin Target</div>
+            <div className="rounded-xl p-5" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}>
+              <div className="text-sm" style={{ color: "var(--muted-2)" }}>Margin Target</div>
               <div className="mt-1 text-2xl font-bold text-amber-400">
                 {marginTarget ?? "—"}
               </div>
@@ -119,24 +103,24 @@ export default async function CostsPage() {
 
         {/* Monthly Costs Table */}
         <section className="mb-10">
-          <h2 className="mb-4 text-lg font-semibold text-gray-300">Monthly Services</h2>
-          <div className="rounded-xl border border-gray-800 bg-gray-900 overflow-hidden">
-            <div className="grid grid-cols-4 gap-4 px-5 py-3 text-xs font-medium text-gray-500 border-b border-gray-800">
+          <h2 className="mb-4 text-lg font-semibold" style={{ color: "var(--muted)" }}>Monthly Services</h2>
+          <div className="rounded-xl overflow-hidden" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}>
+            <div className="grid grid-cols-4 gap-4 px-5 py-3 text-xs font-medium" style={{ color: "var(--muted-2)", borderBottom: "1px solid var(--border)" }}>
               <div>Service</div>
               <div>Tier</div>
               <div className="text-right">Monthly Cost</div>
               <div>Notes</div>
             </div>
             {costs.map((c) => (
-              <div key={c.service} className="grid grid-cols-4 gap-4 px-5 py-3 text-sm border-b border-gray-800 last:border-0">
+              <div key={c.service} className="grid grid-cols-4 gap-4 px-5 py-3 text-sm last:border-0" style={{ borderBottom: "1px solid var(--border)" }}>
                 <div className="font-medium">{c.service}</div>
-                <div className="text-gray-400">{c.tier}</div>
-                <div className="text-right text-gray-300">{c.monthlyCost}</div>
-                <div className="text-gray-500 text-xs">{c.notes}</div>
+                <div style={{ color: "var(--muted)" }}>{c.tier}</div>
+                <div className="text-right" style={{ color: "var(--muted)" }}>{c.monthlyCost}</div>
+                <div className="text-xs" style={{ color: "var(--muted-2)" }}>{c.notes}</div>
               </div>
             ))}
             {costs.length === 0 && (
-              <div className="p-6 text-center text-gray-500">
+              <div className="p-6 text-center" style={{ color: "var(--muted-2)" }}>
                 No cost data available. Push operational-costs.md to the repo.
               </div>
             )}
@@ -145,25 +129,24 @@ export default async function CostsPage() {
 
         {/* Phase Projections */}
         <section>
-          <h2 className="mb-4 text-lg font-semibold text-gray-300">Cost Projections by Phase</h2>
+          <h2 className="mb-4 text-lg font-semibold" style={{ color: "var(--muted)" }}>Cost Projections by Phase</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {phases.map((p, i) => (
               <div
                 key={p.phase}
-                className={`rounded-xl border p-5 ${
-                  i === 0
-                    ? "border-emerald-800 bg-emerald-900/10"
-                    : "border-gray-800 bg-gray-900"
-                }`}
+                className="rounded-xl border p-5"
+                style={{
+                  background: i === 0 ? "rgba(16,185,129,0.05)" : "var(--paper)",
+                  borderColor: i === 0 ? "rgba(16,185,129,0.3)" : "var(--border)",
+                }}
               >
-                <div className="text-sm text-gray-500">{p.phase}</div>
-                <div className="mt-1 text-xl font-bold text-gray-200">{p.monthly}</div>
-                <div className="mt-2 text-xs text-gray-500">{p.services}</div>
+                <div className="text-sm" style={{ color: "var(--muted-2)" }}>{p.phase}</div>
+                <div className="mt-1 text-xl font-bold">{p.monthly}</div>
+                <div className="mt-2 text-xs" style={{ color: "var(--muted-2)" }}>{p.services}</div>
               </div>
             ))}
           </div>
         </section>
-      </main>
     </div>
   );
 }

@@ -1,26 +1,73 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* LeadsPanther Dark Theme */
+  --background: #07070a;
+  --foreground: #f7f4ed;
+  --paper: #0f0f14;
+  --surface: #14141b;
+  --border: rgba(247, 244, 237, 0.12);
+  --border-strong: rgba(247, 244, 237, 0.20);
+  --shadow: 0 1px 0 rgba(247, 244, 237, 0.03), 0 16px 40px rgba(0, 0, 0, 0.55);
+  --muted: rgba(247, 244, 237, 0.80);
+  --muted-2: rgba(247, 244, 237, 0.50);
+  --accent: #ef4444;
+  --accent-gold: #f59e0b;
+  --gradient-accent: linear-gradient(135deg, #ef4444 0%, #f87171 40%, #f59e0b 100%);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* LeadsPanther gradient text */
+.lp-gradient-text {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card hover lift */
+.lp-card-hover {
+  transition: transform 0.35s cubic-bezier(0.25, 0.4, 0.25, 1),
+    box-shadow 0.35s cubic-bezier(0.25, 0.4, 0.25, 1),
+    border-color 0.35s ease;
+}
+.lp-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Button glow */
+.lp-btn-glow {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.lp-btn-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-card-hover { transition: none; }
+  .lp-card-hover:hover { transform: none; }
+  .lp-btn-glow { transition: none; }
+  .lp-btn-glow:hover { transform: none; }
 }

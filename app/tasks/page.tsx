@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { fetchFile } from "@/lib/github";
 
 export const revalidate = 120;
@@ -46,7 +45,7 @@ function priorityColor(p: string): string {
   if (low.includes("critical") || low.includes("high")) return "text-red-400";
   if (low.includes("medium")) return "text-amber-400";
   if (low.includes("low")) return "text-blue-400";
-  return "text-gray-400";
+  return "text-neutral-400";
 }
 
 export default async function TasksPage() {
@@ -56,26 +55,11 @@ export default async function TasksPage() {
   const completed = todoMd ? parseTodoSection(todoMd, "## Completed") : [];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100">
-      <header className="border-b border-gray-800 px-6 py-4">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">Task Board</h1>
-            <p className="text-sm text-gray-500">Organization TODOs</p>
-          </div>
-          <nav className="flex gap-4 text-sm">
-            <Link href="/" className="text-gray-500 hover:text-white">Overview</Link>
-            <Link href="/products" className="text-gray-500 hover:text-white">Products</Link>
-            <Link href="/costs" className="text-gray-500 hover:text-white">Costs</Link>
-            <Link href="/tasks" className="text-gray-300 hover:text-white">Tasks</Link>
-            <Link href="/activity" className="text-gray-500 hover:text-white">Activity</Link>
-          </nav>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-6 py-8">
+    <div className="px-6 py-8 max-w-7xl mx-auto">
+      <h1 className="text-2xl font-bold tracking-tight mb-1" style={{ fontFamily: "var(--font-display)" }}>Task Board</h1>
+      <p className="text-sm mb-8" style={{ color: "var(--muted-2)" }}>Organization TODOs</p>
         {!todoMd && (
-          <div className="rounded-xl border border-gray-800 bg-gray-900 p-8 text-center text-gray-500">
+          <div className="rounded-xl p-8 text-center" style={{ background: "var(--paper)", border: "1px solid var(--border)", color: "var(--muted-2)" }}>
             No TODO.md found in the repository.
           </div>
         )}
@@ -86,26 +70,26 @@ export default async function TasksPage() {
             <div>
               <div className="mb-4 flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-amber-400" />
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
+                <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
                   Pending ({pending.length})
                 </h2>
               </div>
               <div className="space-y-3">
                 {pending.length === 0 && (
-                  <div className="rounded-xl border border-gray-800 bg-gray-900 p-4 text-center text-sm text-gray-500">
+                  <div className="rounded-xl border p-4 text-center text-sm" style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--muted-2)" }}>
                     All clear!
                   </div>
                 )}
                 {pending.map((item, i) => (
-                  <div key={i} className="rounded-xl border border-gray-800 bg-gray-900 p-4">
+                  <div key={i} className="rounded-xl border p-4" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
                     <div className="font-medium text-sm">{item.title}</div>
                     {item.description && (
-                      <div className="mt-1 text-xs text-gray-500 line-clamp-2">{item.description}</div>
+                      <div className="mt-1 text-xs line-clamp-2" style={{ color: "var(--muted-2)" }}>{item.description}</div>
                     )}
                     <div className="mt-3 flex gap-3 text-xs">
                       <span className={priorityColor(item.priority)}>{item.priority}</span>
-                      <span className="text-gray-600">·</span>
-                      <span className="text-gray-500">{item.complexity}</span>
+                      <span style={{ color: "var(--muted-2)" }}>·</span>
+                      <span style={{ color: "var(--muted-2)" }}>{item.complexity}</span>
                     </div>
                   </div>
                 ))}
@@ -116,26 +100,26 @@ export default async function TasksPage() {
             <div>
               <div className="mb-4 flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
+                <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
                   Completed ({completed.length})
                 </h2>
               </div>
               <div className="space-y-3">
                 {completed.length === 0 && (
-                  <div className="rounded-xl border border-gray-800 bg-gray-900 p-4 text-center text-sm text-gray-500">
+                  <div className="rounded-xl p-4 text-center text-sm" style={{ background: "var(--paper)", border: "1px solid var(--border)", color: "var(--muted-2)" }}>
                     Nothing completed yet.
                   </div>
                 )}
                 {completed.map((item, i) => (
-                  <div key={i} className="rounded-xl border border-gray-800 bg-gray-900/50 p-4 opacity-70">
+                  <div key={i} className="rounded-xl p-4 opacity-70" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}>
                     <div className="font-medium text-sm line-through">{item.title}</div>
                     {item.description && (
-                      <div className="mt-1 text-xs text-gray-600 line-clamp-2">{item.description}</div>
+                      <div className="mt-1 text-xs line-clamp-2" style={{ color: "var(--muted-2)" }}>{item.description}</div>
                     )}
                     <div className="mt-3 flex gap-3 text-xs">
-                      <span className="text-gray-600">{item.priority}</span>
-                      <span className="text-gray-700">·</span>
-                      <span className="text-gray-600">{item.complexity}</span>
+                      <span style={{ color: "var(--muted-2)" }}>{item.priority}</span>
+                      <span style={{ color: "var(--muted-2)" }}>·</span>
+                      <span style={{ color: "var(--muted-2)" }}>{item.complexity}</span>
                     </div>
                   </div>
                 ))}
@@ -143,7 +127,6 @@ export default async function TasksPage() {
             </div>
           </div>
         )}
-      </main>
     </div>
   );
 }

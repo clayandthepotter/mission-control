@@ -4,19 +4,66 @@ export interface Agent {
   id: string;
   name: string;
   role: string;
+  department: string;
   emoji: string;
-  workspace: string; // path in the repo (relative to repo root)
+  workspace: string;
+  model: string;
+  reportsTo: string;
+  skillCount: number;
+  keySkills: string[];
+  tools: string[];
+  telegramBotName: string | null;
 }
 
 export const AGENTS: Agent[] = [
-  { id: "orchestrator", name: "Alfred", role: "Orchestrator", emoji: "🎯", workspace: "" },
-  { id: "delivery_ops", name: "Devin", role: "Delivery Ops", emoji: "🔧", workspace: "../workspace-delivery_ops" },
-  { id: "revenue", name: "Rick", role: "Revenue / Sales", emoji: "💰", workspace: "../workspace-revenue" },
-  { id: "rnd", name: "Rene", role: "R&D", emoji: "🔬", workspace: "../workspace-rnd" },
-  { id: "design", name: "Daniel", role: "Design", emoji: "🎨", workspace: "../workspace-design" },
-  { id: "finance", name: "Friedrich", role: "Finance", emoji: "📊", workspace: "../workspace-finance" },
-  { id: "legal", name: "Laura", role: "Legal", emoji: "⚖️", workspace: "../workspace-legal" },
-  { id: "people", name: "Persephany", role: "People", emoji: "👥", workspace: "../workspace-people" },
+  {
+    id: "orchestrator", name: "Alfred", role: "COO / Orchestrator", department: "Executive",
+    emoji: "🎯", workspace: "", model: "openrouter/auto", reportsTo: "Clayton",
+    skillCount: 15, keySkills: ["agent-team-orchestration", "tool-skill-request", "infrastructure-ops", "gog"],
+    tools: ["read", "write", "edit", "exec", "browser"], telegramBotName: "@RiffRafferty_Bot",
+  },
+  {
+    id: "delivery_ops", name: "Devin", role: "Delivery Ops Lead", department: "Delivery",
+    emoji: "🔧", workspace: "../workspace-delivery_ops", model: "qwen3-coder:free", reportsTo: "Alfred",
+    skillCount: 12, keySkills: ["infrastructure-ops", "solo-setup", "api-designer", "e2e-testing-patterns"],
+    tools: ["read", "write", "edit", "exec", "browser"], telegramBotName: "@DevinLeadsPantherBot",
+  },
+  {
+    id: "revenue", name: "Rick", role: "Revenue / Sales Lead", department: "Revenue",
+    emoji: "💰", workspace: "../workspace-revenue", model: "llama-4-maverick:free", reportsTo: "Alfred",
+    skillCount: 18, keySkills: ["crustdata-enrichment", "closing-deals", "linkedin-writer", "sales-pipeline-tracker"],
+    tools: ["read", "write", "edit", "exec", "browser"], telegramBotName: "Rick bot",
+  },
+  {
+    id: "rnd", name: "Rene", role: "R&D Lead", department: "Research",
+    emoji: "🔬", workspace: "../workspace-rnd", model: "deepseek-r1-0528:free", reportsTo: "Alfred",
+    skillCount: 5, keySkills: ["research-cog", "google-web-search", "crustdata-enrichment"],
+    tools: ["read", "write", "edit", "exec", "browser"], telegramBotName: "Rene bot",
+  },
+  {
+    id: "design", name: "Daniel", role: "Design Lead", department: "Design",
+    emoji: "🎨", workspace: "../workspace-design", model: "gemini-2.5-flash:free", reportsTo: "Alfred",
+    skillCount: 3, keySkills: ["ui-ux-design", "page-designer", "superdesign"],
+    tools: ["read", "write", "edit", "browser"], telegramBotName: "Daniel bot",
+  },
+  {
+    id: "finance", name: "Friedrich", role: "Finance Lead", department: "Finance",
+    emoji: "📊", workspace: "../workspace-finance", model: "qwen3-next-80b:free", reportsTo: "Alfred",
+    skillCount: 6, keySkills: ["financial-reporting", "finance-skill", "financial-planning"],
+    tools: ["read", "write", "edit", "exec", "browser"], telegramBotName: "Friedrich bot",
+  },
+  {
+    id: "legal", name: "Laura", role: "Legal Lead", department: "Legal",
+    emoji: "⚖️", workspace: "../workspace-legal", model: "llama-4-maverick:free", reportsTo: "Alfred",
+    skillCount: 3, keySkills: ["compliance-officer", "ciso"],
+    tools: ["read", "write", "edit"], telegramBotName: "Laura bot",
+  },
+  {
+    id: "people", name: "Persephany", role: "People Lead", department: "People",
+    emoji: "👥", workspace: "../workspace-people", model: "llama-4-maverick:free", reportsTo: "Alfred",
+    skillCount: 2, keySkills: ["agent-evaluation"],
+    tools: ["read", "write", "edit"], telegramBotName: "Persephany bot",
+  },
 ];
 
 /** Paths in the GitHub repo for each agent's key files */

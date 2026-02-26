@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "./ThemeProvider";
 
 const NAV_ITEMS = [
   { href: "/", label: "Overview", icon: "⚡" },
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { theme, toggle } = useTheme();
 
   return (
     <aside className="hidden md:flex w-56 shrink-0 flex-col border-r"
@@ -66,8 +68,16 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-5 py-4 border-t text-xs" style={{ borderColor: "var(--border)", color: "var(--muted-2)" }}>
-        mc.leadspanther.com
+      <div className="px-5 py-4 border-t flex items-center justify-between text-xs" style={{ borderColor: "var(--border)", color: "var(--muted-2)" }}>
+        <span>mc.leadspanther.com</span>
+        <button
+          onClick={toggle}
+          aria-label="Toggle theme"
+          className="p-1.5 rounded-lg transition-colors hover:opacity-80"
+          style={{ background: "var(--surface)" }}
+        >
+          {theme === "dark" ? "☀️" : "🌙"}
+        </button>
       </div>
     </aside>
   );

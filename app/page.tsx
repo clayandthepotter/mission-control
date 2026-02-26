@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getAgents, getAllAgentStatuses, parseSessionState } from "@/lib/agents";
+import { getAgents, getAllAgentStatuses, deriveAgentStatus } from "@/lib/agents";
 import { fetchCommits } from "@/lib/github";
 import { getPipelineMetrics } from "@/lib/supabase";
 import { getCronJobs } from "@/lib/crons";
@@ -44,20 +44,20 @@ export default async function DashboardPage() {
           Agents
         </h2>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {statuses.map(({ agent, sessionState, todoSummary }) => {
-            const fields = sessionState ? parseSessionState(sessionState) : {};
+          {statuses.map((st) => {
+            const label = deriveAgentStatus(st);
             return (
               <Link
-                key={agent.id}
-                href={`/agent/${agent.id}`}
+                key={st.agent.id}
+                href={`/agent/${st.agent.id}`}
                 className="rounded-xl border p-4 lp-card-hover"
                 style={{ background: "var(--surface)", borderColor: "var(--border)" }}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{agent.emoji}</span>
+                  <span className="text-2xl">{st.agent.emoji}</span>
                   <div>
-                    <div className="font-semibold text-sm">{agent.name}</div>
-                    <div className="text-xs" style={{ color: "var(--muted-2)" }}>{agent.role}</div>
+                    <div className="font-semibold text-sm">{st.agent.name}</div>
+                    <div className="text-xs" style={{ color: "var(--muted-2)" }}>{st.agent.role}</div>
                   </div>
                 </div>
                 <div className="mt-3 space-y-1.5 text-xs">
@@ -65,16 +65,20 @@ export default async function DashboardPage() {
                     <span style={{ color: "var(--muted-2)" }}>Status</span>
                     <span className="rounded-full px-2 py-0.5 text-xs font-medium"
                       style={{
-                        background: fields.status === "Active" ? "rgba(34,197,94,0.1)" : "var(--paper)",
-                        color: fields.status === "Active" ? "#22c55e" : "var(--muted-2)",
+                        background: label === "Active" ? "rgba(34,197,94,0.1)"
+                          : label === "Configured" ? "rgba(59,130,246,0.1)"
+                          : "var(--paper)",
+                        color: label === "Active" ? "#22c55e"
+                          : label === "Configured" ? "#3b82f6"
+                          : "var(--muted-2)",
                       }}>
-                      {fields.status || (sessionState ? "Connected" : "No data")}
+                      {label}
                     </span>
                   </div>
-                  {todoSummary && (
+                  {st.todoSummary && (
                     <div className="flex items-center justify-between">
                       <span style={{ color: "var(--muted-2)" }}>Tasks</span>
-                      <span style={{ color: "var(--muted)" }}>{todoSummary.pending} pending</span>
+                      <span style={{ color: "var(--muted)" }}>{st.todoSummary.pending} pending</span>
                     </div>
                   )}
                 </div>

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAgent, getAgentStatus, parseSessionState, formatModelCascade } from "@/lib/agents";
+import { getAgent, getAgentStatus, deriveAgentStatus, parseSessionState, formatModelCascade } from "@/lib/agents";
 import { fetchCommits } from "@/lib/github";
 import { getCronJobsByAgent, humanSchedule, relativeTime, STAGES } from "@/lib/crons";
+import MarkdownRenderer from "@/app/components/MarkdownRenderer";
 
 export default async function AgentDetailPage({
   params,
@@ -19,6 +20,7 @@ export default async function AgentDetailPage({
     getCronJobsByAgent(id),
   ]);
 
+  const statusLabel = deriveAgentStatus(status);
   const fields = status.sessionState ? parseSessionState(status.sessionState) : {};
 
   // Filter commits by agent name (rough heuristic: commit message mentions agent name)
@@ -38,27 +40,55 @@ export default async function AgentDetailPage({
         </div>
         <span className="ml-auto rounded-full px-3 py-1 text-xs font-medium"
           style={{
-            background: fields.status === "Active" ? "rgba(34,197,94,0.1)" : "var(--paper)",
-            color: fields.status === "Active" ? "#22c55e" : "var(--muted-2)",
+            background: statusLabel === "Active" ? "rgba(34,197,94,0.1)"
+              : statusLabel === "Configured" ? "rgba(59,130,246,0.1)"
+              : "var(--paper)",
+            color: statusLabel === "Active" ? "#22c55e"
+              : statusLabel === "Configured" ? "#3b82f6"
+              : "var(--muted-2)",
           }}>
-          {fields.status || (status.sessionState ? "Connected" : "No data")}
+          {statusLabel}
         </span>
       </div>
-        {/* Session State */}
-        <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--muted-2)" }}>Session State</h2>
-          {status.sessionState ? (
-            <div className="rounded-xl p-5" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}>
-              <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed" style={{ color: "var(--muted)" }}>
-                {status.sessionState}
-              </pre>
+        {/* Heartbeat / Role */}
+        {status.heartbeat && (
+          <section>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--muted-2)" }}>Heartbeat</h2>
+            <div className="rounded-xl p-5 prose-sm" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}>
+              <MarkdownRenderer content={status.heartbeat} />
             </div>
-          ) : (
+          </section>
+        )}
+
+        {/* Session State (orchestrator only) */}
+        {status.sessionState && (
+          <section>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--muted-2)" }}>Session State</h2>
+            <div className="rounded-xl p-5 prose-sm" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}>
+              <MarkdownRenderer content={status.sessionState} />
+            </div>
+          </section>
+        )}
+
+        {/* Memory */}
+        {status.memory && !status.memory.includes("(None yet") && (
+          <section>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--muted-2)" }}>Memory</h2>
+            <div className="rounded-xl p-5 prose-sm" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}>
+              <MarkdownRenderer content={status.memory} />
+            </div>
+          </section>
+        )}
+
+        {/* No state at all */}
+        {!status.heartbeat && !status.sessionState && (
+          <section>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--muted-2)" }}>Agent State</h2>
             <div className="rounded-xl p-6 text-center" style={{ background: "var(--paper)", border: "1px solid var(--border)", color: "var(--muted-2)" }}>
-              No session state available. This agent&apos;s workspace is not tracked in the main repo.
+              No state files synced yet. State will appear after the next commit.
             </div>
-          )}
-        </section>
+          </section>
+        )}
 
         {/* TODO Summary */}
         {status.todoSummary && (

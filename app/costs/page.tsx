@@ -89,13 +89,13 @@ export default async function CostsPage() {
             <div className="rounded-xl p-5" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}>
               <div className="text-sm" style={{ color: "var(--muted-2)" }}>Cost Per Lead</div>
               <div className="mt-1 text-2xl font-bold text-blue-400">
-                {costPerLead ?? "—"}
+                {costPerLead ?? "-"}
               </div>
             </div>
             <div className="rounded-xl p-5" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}>
               <div className="text-sm" style={{ color: "var(--muted-2)" }}>Margin Target</div>
               <div className="mt-1 text-2xl font-bold text-amber-400">
-                {marginTarget ?? "—"}
+                {marginTarget ?? "-"}
               </div>
             </div>
           </div>

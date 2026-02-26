@@ -35,7 +35,7 @@ export default async function TasksPage({
         </Link>
       </div>
       <p className="text-sm mb-6" style={{ color: "var(--muted-2)" }}>
-        {filtered.length} jobs — drag tasks through stages
+        {filtered.length} jobs - drag tasks through stages
       </p>
 
       {/* Filter bar */}
@@ -180,7 +180,7 @@ export default async function TasksPage({
                       {job.skillRef}
                     </Link>
                   ) : (
-                    <span style={{ color: "var(--muted-2)" }}>—</span>
+                    <span style={{ color: "var(--muted-2)" }}>-</span>
                   )}
                 </div>
                 <div className="text-center">
@@ -192,7 +192,7 @@ export default async function TasksPage({
                   </span>
                 </div>
                 <div className="text-center text-xs" style={{ color: "var(--muted-2)" }}>
-                  {job.lastStatus ?? "—"}
+                  {job.lastStatus ?? "-"}
                 </div>
                 <div className="text-center text-xs" style={{ color: "var(--muted-2)" }}>
                   {relativeTime(job.lastRunAtMs)}

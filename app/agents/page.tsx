@@ -9,7 +9,7 @@ export default async function AgentsPage() {
         Agent Organization
       </h1>
       <p className="text-sm mb-8" style={{ color: "var(--muted-2)" }}>
-        8 agents across 7 departments — all report to Alfred → Clayton
+        8 agents across 7 departments - all report to Alfred {"→"} Clayton
       </p>
 
       {/* Clayton at top */}

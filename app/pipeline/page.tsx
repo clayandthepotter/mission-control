@@ -93,15 +93,15 @@ export default async function PipelinePage() {
             {leads.map((lead) => (
               <div key={lead.id} className="grid grid-cols-6 gap-4 px-5 py-2.5 text-sm border-b last:border-0"
                 style={{ borderColor: "var(--border)" }}>
-                <div className="font-medium truncate">{lead.company_name || "—"}</div>
+                <div className="font-medium truncate">{lead.company_name || "-"}</div>
                 <div className="text-xs" style={{ color: "var(--muted-2)" }}>
-                  {lead.source?.replace("google_maps_serper", "GMaps").replace("google_places", "GPlaces") || "—"}
+                  {lead.source?.replace("google_maps_serper", "GMaps").replace("google_places", "GPlaces") || "-"}
                 </div>
                 <div className="truncate text-xs" style={{ color: "var(--muted)" }}>
-                  {lead.website || "—"}
+                  {lead.website || "-"}
                 </div>
                 <div className="truncate text-xs" style={{ color: "var(--muted)" }}>
-                  {lead.email || "—"}
+                  {lead.email || "-"}
                 </div>
                 <div className="text-center">
                   <StatusBadge ok={lead.ready_for_outreach} />
@@ -124,5 +124,5 @@ function StatusBadge({ ok }: { ok: boolean | null }) {
       style={{ background: "rgba(34, 197, 94, 0.1)", color: "#22c55e" }}>✓</span>;
   }
   return <span className="inline-block rounded-full px-2 py-0.5 text-xs"
-    style={{ color: "var(--muted-2)" }}>—</span>;
+    style={{ color: "var(--muted-2)" }}>-</span>;
 }

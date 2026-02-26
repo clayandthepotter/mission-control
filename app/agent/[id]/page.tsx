@@ -125,7 +125,7 @@ export default async function AgentDetailPage({
             </div>
             <div className="flex justify-between px-5 py-3" style={{ borderBottom: "1px solid var(--border)" }}>
               <span style={{ color: "var(--muted-2)" }}>Reports To</span>
-              <span style={{ color: "var(--muted)" }}>{agent.reportsTo ?? "—"}</span>
+              <span style={{ color: "var(--muted)" }}>{agent.reportsTo ?? "-"}</span>
             </div>
             {agent.telegramBotName && (
               <div className="flex justify-between px-5 py-3" style={{ borderBottom: "1px solid var(--border)" }}>

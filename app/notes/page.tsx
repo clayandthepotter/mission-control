@@ -12,7 +12,7 @@ export default async function NotesPage() {
         Daily Notes
       </h1>
       <p className="text-sm mb-8" style={{ color: "var(--muted-2)" }}>
-        {notes.length} notes — daily operational logs from the knowledge repository
+        {notes.length} notes - daily operational logs from the knowledge repository
       </p>
 
       {notes.length > 0 ? (

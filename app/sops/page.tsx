@@ -10,7 +10,7 @@ export default async function SopsPage() {
         Standard Operating Procedures
       </h1>
       <p className="text-sm mb-8" style={{ color: "var(--muted-2)" }}>
-        {sops.length} SOPs defining deterministic agent workflows — step-by-step procedures with MUST/SHOULD/MAY constraints
+        {sops.length} SOPs defining deterministic agent workflows - step-by-step procedures with MUST/SHOULD/MAY constraints
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

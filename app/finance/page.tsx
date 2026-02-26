@@ -88,7 +88,7 @@ export default async function FinancePage() {
                   </span>
                 </div>
                 <div className="text-xs truncate" style={{ color: "var(--muted-2)" }}>
-                  {t.description || "—"}
+                  {t.description || "-"}
                 </div>
               </div>
             ))}

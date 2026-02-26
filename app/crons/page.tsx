@@ -12,7 +12,7 @@ export default async function CronsPage() {
         Cron Jobs
       </h1>
       <p className="text-sm mb-8" style={{ color: "var(--muted-2)" }}>
-        {jobs.length} scheduled jobs — schedules, ownership, skill references, and execution status
+        {jobs.length} scheduled jobs - schedules, ownership, skill references, and execution status
       </p>
 
       <div className="rounded-xl border overflow-hidden"
@@ -45,7 +45,7 @@ export default async function CronsPage() {
                   {job.skillRef}
                 </Link>
               ) : (
-                <span style={{ color: "var(--muted-2)" }}>—</span>
+                <span style={{ color: "var(--muted-2)" }}>-</span>
               )}
             </div>
             <div className="text-center">
@@ -61,7 +61,7 @@ export default async function CronsPage() {
               {job.lastStatus === "ok" && <span className="h-2 w-2 rounded-full bg-emerald-400" />}
               {job.lastStatus === "skipped" && <span className="h-2 w-2 rounded-full bg-amber-400" />}
               {job.lastStatus === "error" && <span className="h-2 w-2 rounded-full bg-red-400" />}
-              <span className="text-xs" style={{ color: "var(--muted-2)" }}>{job.lastStatus ?? "—"}</span>
+              <span className="text-xs" style={{ color: "var(--muted-2)" }}>{job.lastStatus ?? "-"}</span>
             </div>
             <div className="text-center text-xs" style={{ color: "var(--muted-2)" }}>
               {relativeTime(job.lastRunAtMs)}

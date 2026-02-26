@@ -36,7 +36,7 @@ export default function RootLayout({
       </head>
       <body className={`${ibmPlexSans.variable} ${bebas.variable} antialiased`}>
         <ThemeProvider>
-          <div className="flex min-h-screen">
+          <div className="flex h-screen overflow-hidden">
             <Sidebar />
             <main className="flex-1 overflow-y-auto">{children}</main>
           </div>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getSkillDetail, AGENT_NAMES, CATEGORY_CONFIG } from "@/lib/skills";
 import { AGENT_EMOJIS } from "@/lib/crons";
+import MarkdownRenderer from "@/app/components/MarkdownRenderer";
 
 export default async function SkillDetailPage({
   params,
@@ -73,26 +74,12 @@ export default async function SkillDetailPage({
         </div>
       )}
 
-      {/* Sections */}
-      <div className="space-y-6">
-        {skill.sections.map((sec, idx) => (
-          <section key={idx}>
-            <h2 className="text-sm font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--muted-2)" }}>
-              {sec.heading}
-            </h2>
-            <div
-              className="rounded-xl p-5"
-              style={{ background: "var(--paper)", border: "1px solid var(--border)" }}
-            >
-              <pre
-                className="whitespace-pre-wrap text-sm leading-relaxed font-mono"
-                style={{ color: "var(--muted)" }}
-              >
-                {sec.body}
-              </pre>
-            </div>
-          </section>
-        ))}
+      {/* Rendered markdown content */}
+      <div
+        className="rounded-xl p-6"
+        style={{ background: "var(--paper)", border: "1px solid var(--border)" }}
+      >
+        <MarkdownRenderer content={skill.content} />
       </div>
 
       {/* Raw source */}

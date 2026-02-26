@@ -19,7 +19,7 @@ export async function fetchFile(path: string): Promise<string | null> {
     const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}?ref=${BRANCH}`;
     const res = await fetch(url, {
       headers: headers(),
-      next: { revalidate: 120 },
+      cache: "no-store",
       signal: AbortSignal.timeout(10_000),
     });
     if (!res.ok) return null;
@@ -93,7 +93,7 @@ export async function fetchCommits(
     const url = `https://api.github.com/repos/${OWNER}/${REPO}/commits?sha=${BRANCH}&per_page=${limit}`;
     const res = await fetch(url, {
       headers: { ...headers(), Accept: "application/vnd.github.v3+json" },
-      next: { revalidate: 120 },
+      cache: "no-store",
       signal: AbortSignal.timeout(10_000),
     });
     if (!res.ok) return [];

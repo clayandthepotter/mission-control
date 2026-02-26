@@ -33,7 +33,7 @@ export async function getSkills(): Promise<SkillInfo[]> {
   }
 
   try {
-    const res = await fetch(url, { headers: h, next: { revalidate: 300 } });
+    const res = await fetch(url, { headers: h, cache: "no-store" });
     if (!res.ok) return [];
     const entries = (await res.json()) as { name: string; type: string }[];
     const skillNames = entries
@@ -114,20 +114,21 @@ function extractPurpose(md: string): string | null {
 function parseSections(md: string): { heading: string; body: string }[] {
   const lines = md.split("\n");
   const sections: { heading: string; body: string }[] = [];
-  let current: { heading: string; lines: string[] } | null = null;
+  let current: { heading: string; level: number; lines: string[] } | null = null;
 
   for (const line of lines) {
     const headingMatch = line.match(/^(#{1,3})\s+(.+)/);
     if (headingMatch) {
       if (current) sections.push({ heading: current.heading, body: current.lines.join("\n").trim() });
-      current = { heading: headingMatch[2], lines: [] };
+      current = { heading: headingMatch[2], level: headingMatch[1].length, lines: [] };
     } else if (current) {
       current.lines.push(line);
     }
   }
   if (current) sections.push({ heading: current.heading, body: current.lines.join("\n").trim() });
 
-  return sections;
+  // Filter out the H1 title (already shown in page header) and empty sections
+  return sections.filter((s) => s.body.length > 0);
 }
 
 export { AGENT_NAMES };

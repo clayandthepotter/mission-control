@@ -23,7 +23,7 @@ export async function getKnowledgeTree(): Promise<KnowledgeEntry[]> {
   }
 
   try {
-    const res = await fetch(url, { headers: h, next: { revalidate: 300 } });
+    const res = await fetch(url, { headers: h, cache: "no-store" });
     if (!res.ok) return [];
     const data = (await res.json()) as {
       tree: { path: string; type: string }[];
@@ -106,7 +106,7 @@ export async function getDailyNotes(): Promise<{ date: string; path: string }[]>
   }
 
   try {
-    const res = await fetch(url, { headers: h, next: { revalidate: 300 } });
+    const res = await fetch(url, { headers: h, cache: "no-store" });
     if (!res.ok) return [];
     const entries = (await res.json()) as { name: string; type: string }[];
     return entries

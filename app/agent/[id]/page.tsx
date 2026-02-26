@@ -1,11 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AGENTS, getAgentStatus, parseSessionState } from "@/lib/agents";
+import { getAgent, getAgentStatus, parseSessionState, formatModelCascade } from "@/lib/agents";
 import { fetchCommits } from "@/lib/github";
 import { getCronJobsByAgent, humanSchedule, relativeTime, STAGES } from "@/lib/crons";
-
-export const revalidate = 120;
-
 
 export default async function AgentDetailPage({
   params,
@@ -13,7 +10,7 @@ export default async function AgentDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const agent = AGENTS.find((a) => a.id === id);
+  const agent = await getAgent(id);
   if (!agent) notFound();
 
   const [status, commits, agentJobs] = await Promise.all([
@@ -90,7 +87,7 @@ export default async function AgentDetailPage({
             </div>
             <div className="flex justify-between px-5 py-3" style={{ borderBottom: "1px solid var(--border)" }}>
               <span style={{ color: "var(--muted-2)" }}>Model</span>
-              <span style={{ color: "var(--muted)" }}>{agent.model}</span>
+              <span className="font-mono text-xs" style={{ color: "var(--muted)" }}>{formatModelCascade(agent.model)}</span>
             </div>
             <div className="flex justify-between px-5 py-3" style={{ borderBottom: "1px solid var(--border)" }}>
               <span style={{ color: "var(--muted-2)" }}>Department</span>
@@ -161,7 +158,7 @@ export default async function AgentDetailPage({
             <div className="flex gap-4">
               {agent.keySkills.length > 0 && (
                 <div className="flex-1">
-                  <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--muted-2)" }}>Skills ({agent.keySkills.length})</h2>
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--muted-2)" }}>Skills ({agent.skillCount})</h2>
                   <div className="flex flex-wrap gap-2">
                     {agent.keySkills.map((s) => (
                       <span key={s} className="rounded-full px-3 py-1 text-xs" style={{ background: "var(--surface)", color: "var(--muted)" }}>{s}</span>

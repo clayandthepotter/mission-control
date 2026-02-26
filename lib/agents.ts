@@ -6,79 +6,92 @@ export interface Agent {
   role: string;
   department: string;
   emoji: string;
-  workspace: string;
-  model: string;
   reportsTo: string;
+  telegramBotName: string | null;
+  model: { primary: string; fallbacks: string[] };
+  tools: string[];
+  /** Computed dynamically from REGISTRY.json */
   skillCount: number;
   keySkills: string[];
-  tools: string[];
+}
+
+interface RosterEntry {
+  id: string;
+  name: string;
+  role: string;
+  department: string;
+  emoji: string;
+  reportsTo: string;
   telegramBotName: string | null;
+  model: { primary: string; fallbacks: string[] };
+  tools: string[];
 }
 
-export const AGENTS: Agent[] = [
-  {
-    id: "orchestrator", name: "Alfred", role: "COO / Orchestrator", department: "Executive",
-    emoji: "🎯", workspace: "", model: "auto → deepseek-v3.2 → hermes-405b:free", reportsTo: "Clayton",
-    skillCount: 15, keySkills: ["agent-team-orchestration", "tool-skill-request", "infrastructure-ops", "gog"],
-    tools: ["read", "write", "edit", "exec", "browser"], telegramBotName: "@RiffRafferty_Bot",
-  },
-  {
-    id: "delivery_ops", name: "Devin", role: "Delivery Ops Lead", department: "Delivery",
-    emoji: "🔧", workspace: "../workspace-delivery_ops", model: "auto → deepseek-v3.2 → qwen3-coder:free", reportsTo: "Alfred",
-    skillCount: 12, keySkills: ["infrastructure-ops", "solo-setup", "api-designer", "e2e-testing-patterns"],
-    tools: ["read", "write", "edit", "exec", "browser"], telegramBotName: "@DevinLeadsPantherBot",
-  },
-  {
-    id: "revenue", name: "Rick", role: "Revenue / Sales Lead", department: "Revenue",
-    emoji: "💰", workspace: "../workspace-revenue", model: "auto → deepseek-v3.2 → trinity-large:free", reportsTo: "Alfred",
-    skillCount: 18, keySkills: ["crustdata-enrichment", "closing-deals", "linkedin-writer", "sales-pipeline-tracker"],
-    tools: ["read", "write", "edit", "exec", "browser"], telegramBotName: "Rick bot",
-  },
-  {
-    id: "rnd", name: "Rene", role: "R&D Lead", department: "Research",
-    emoji: "🔬", workspace: "../workspace-rnd", model: "auto → deepseek-r1-0528 → step-3.5-flash:free", reportsTo: "Alfred",
-    skillCount: 5, keySkills: ["research-cog", "google-web-search", "crustdata-enrichment"],
-    tools: ["read", "write", "edit", "exec", "browser"], telegramBotName: "Rene bot",
-  },
-  {
-    id: "design", name: "Daniel", role: "Design Lead", department: "Design",
-    emoji: "🎨", workspace: "../workspace-design", model: "auto → gemini-3-flash → nemotron-vl:free", reportsTo: "Alfred",
-    skillCount: 3, keySkills: ["ui-ux-design", "page-designer", "ad-designer"],
-    tools: ["read", "write", "edit", "browser"], telegramBotName: "Daniel bot",
-  },
-  {
-    id: "finance", name: "Friedrich", role: "Finance Lead", department: "Finance",
-    emoji: "📊", workspace: "../workspace-finance", model: "auto → deepseek-v3.2 → qwen3-80b:free", reportsTo: "Alfred",
-    skillCount: 6, keySkills: ["financial-reporting", "finance-skill", "financial-planning"],
-    tools: ["read", "write", "edit", "exec", "browser"], telegramBotName: "Friedrich bot",
-  },
-  {
-    id: "legal", name: "Laura", role: "Legal Lead", department: "Legal",
-    emoji: "⚖️", workspace: "../workspace-legal", model: "auto → deepseek-r1-0528 → hermes-405b:free", reportsTo: "Alfred",
-    skillCount: 3, keySkills: ["compliance-officer", "ciso"],
-    tools: ["read", "write", "edit"], telegramBotName: "Laura bot",
-  },
-  {
-    id: "people", name: "Persephany", role: "People Lead", department: "People",
-    emoji: "👥", workspace: "../workspace-people", model: "auto → deepseek-v3.2 → glm-4.5-air:free", reportsTo: "Alfred",
-    skillCount: 2, keySkills: ["agent-evaluation"],
-    tools: ["read", "write", "edit"], telegramBotName: "Persephany bot",
-  },
-];
+interface RegistryEntry {
+  name: string;
+  agentIds: string[];
+}
 
-/** Paths in the GitHub repo for each agent's key files */
-function agentFilePath(agent: Agent, file: string): string {
-  // Alfred's workspace IS the repo root (workspace/)
-  // Other agents are sibling directories but only workspace/ is in the repo.
-  // So we only have Alfred's files in the repo. For other agents, we read from
-  // department AGENTS.md or TOOLS.md that Alfred references.
-  if (agent.id === "orchestrator") {
-    return file;
+/** Fetch all agents from ROSTER.json + compute skill counts from REGISTRY.json */
+export async function getAgents(): Promise<Agent[]> {
+  const [rosterRaw, registryRaw] = await Promise.all([
+    fetchFile("agents/ROSTER.json"),
+    fetchFile("skills/REGISTRY.json"),
+  ]);
+
+  if (!rosterRaw) return FALLBACK_AGENTS;
+
+  try {
+    const roster = JSON.parse(rosterRaw) as { agents: RosterEntry[] };
+    const skillMap = buildSkillMap(registryRaw);
+
+    return roster.agents.map((r) => {
+      const skills = skillMap.get(r.id) ?? [];
+      return {
+        ...r,
+        skillCount: skills.length,
+        keySkills: skills.slice(0, 4),
+      };
+    });
+  } catch {
+    return FALLBACK_AGENTS;
   }
-  // Other agent workspace files aren't in the same repo.
-  // We'll return a sentinel so the UI can show "no data" gracefully.
-  return `__external__/${agent.id}/${file}`;
 }
+
+/** Fetch a single agent by ID */
+export async function getAgent(id: string): Promise<Agent | null> {
+  const agents = await getAgents();
+  return agents.find((a) => a.id === id) ?? null;
+}
+
+/** Build map: agentId → skill names[] from REGISTRY.json */
+function buildSkillMap(registryRaw: string | null): Map<string, string[]> {
+  const map = new Map<string, string[]>();
+  if (!registryRaw) return map;
+
+  try {
+    const data = JSON.parse(registryRaw) as { skills: RegistryEntry[] };
+    for (const skill of data.skills) {
+      for (const agentId of skill.agentIds) {
+        const arr = map.get(agentId) ?? [];
+        arr.push(skill.name);
+        map.set(agentId, arr);
+      }
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return map;
+}
+
+/** Format model cascade as a short display string */
+export function formatModelCascade(model: { primary: string; fallbacks: string[] }): string {
+  const shorten = (id: string) =>
+    id.replace("openrouter/", "").replace(/\//, "/").replace(/:free$/, ":free");
+  return [model.primary, ...model.fallbacks.slice(0, 2)].map(shorten).join(" → ");
+}
+
+// ── Agent status ──
 
 export interface AgentStatus {
   agent: Agent;
@@ -88,16 +101,17 @@ export interface AgentStatus {
 
 /** Fetch status for a single agent */
 export async function getAgentStatus(agent: Agent): Promise<AgentStatus> {
-  const sessionState = await fetchFile(agentFilePath(agent, "SESSION-STATE.md"));
+  const sessionState = agent.id === "orchestrator"
+    ? await fetchFile("SESSION-STATE.md")
+    : null;
 
   let todoSummary: { pending: number; completed: number } | null = null;
   if (agent.id === "orchestrator") {
     const todo = await fetchFile("TODO.md");
     if (todo) {
-      const pendingMatch = todo.match(/### .+/g);
       const completedSection = todo.indexOf("## Completed");
       const pendingSection = todo.indexOf("## Pending");
-      if (pendingMatch && completedSection > -1 && pendingSection > -1) {
+      if (completedSection > -1 && pendingSection > -1) {
         const pendingBlock = todo.slice(pendingSection, completedSection);
         const completedBlock = todo.slice(completedSection);
         const pendingCount = (pendingBlock.match(/^### /gm) || []).length;
@@ -112,7 +126,8 @@ export async function getAgentStatus(agent: Agent): Promise<AgentStatus> {
 
 /** Fetch status for all agents */
 export async function getAllAgentStatuses(): Promise<AgentStatus[]> {
-  return Promise.all(AGENTS.map(getAgentStatus));
+  const agents = await getAgents();
+  return Promise.all(agents.map(getAgentStatus));
 }
 
 /** Parse key fields from SESSION-STATE.md */
@@ -126,3 +141,16 @@ export function parseSessionState(md: string): Record<string, string> {
   if (phaseMatch) fields.phase = phaseMatch[1].trim();
   return fields;
 }
+
+// ── Fallback (used when ROSTER.json unavailable) ──
+
+const FALLBACK_AGENTS: Agent[] = [
+  { id: "orchestrator", name: "Alfred", role: "COO / Orchestrator", department: "Executive", emoji: "🎯", reportsTo: "Clayton", telegramBotName: null, model: { primary: "openrouter/auto", fallbacks: [] }, tools: [], skillCount: 0, keySkills: [] },
+  { id: "delivery_ops", name: "Devin", role: "Delivery Ops Lead", department: "Delivery", emoji: "🔧", reportsTo: "Alfred", telegramBotName: null, model: { primary: "openrouter/auto", fallbacks: [] }, tools: [], skillCount: 0, keySkills: [] },
+  { id: "rnd", name: "Rene", role: "R&D Lead", department: "Research", emoji: "🔬", reportsTo: "Alfred", telegramBotName: null, model: { primary: "openrouter/auto", fallbacks: [] }, tools: [], skillCount: 0, keySkills: [] },
+  { id: "revenue", name: "Rick", role: "Revenue / Sales Lead", department: "Revenue", emoji: "💰", reportsTo: "Alfred", telegramBotName: null, model: { primary: "openrouter/auto", fallbacks: [] }, tools: [], skillCount: 0, keySkills: [] },
+  { id: "legal", name: "Laura", role: "Legal Lead", department: "Legal", emoji: "⚖️", reportsTo: "Alfred", telegramBotName: null, model: { primary: "openrouter/auto", fallbacks: [] }, tools: [], skillCount: 0, keySkills: [] },
+  { id: "people", name: "Persephany", role: "People Lead", department: "People", emoji: "👥", reportsTo: "Alfred", telegramBotName: null, model: { primary: "openrouter/auto", fallbacks: [] }, tools: [], skillCount: 0, keySkills: [] },
+  { id: "design", name: "Daniel", role: "Design Lead", department: "Design", emoji: "🎨", reportsTo: "Alfred", telegramBotName: null, model: { primary: "openrouter/auto", fallbacks: [] }, tools: [], skillCount: 0, keySkills: [] },
+  { id: "finance", name: "Friedrich", role: "Finance Lead", department: "Finance", emoji: "📊", reportsTo: "Alfred", telegramBotName: null, model: { primary: "openrouter/auto", fallbacks: [] }, tools: [], skillCount: 0, keySkills: [] },
+];

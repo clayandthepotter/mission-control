@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { AGENTS } from "@/lib/agents";
+import { getAgents, formatModelCascade } from "@/lib/agents";
 
-export const revalidate = 120;
-
-export default function AgentsPage() {
+export default async function AgentsPage() {
+  const AGENTS = await getAgents();
   return (
     <div className="px-6 py-8 max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold tracking-tight mb-1" style={{ fontFamily: "var(--font-display)" }}>
@@ -70,8 +69,8 @@ export default function AgentsPage() {
               </div>
               <div className="flex justify-between">
                 <span style={{ color: "var(--muted-2)" }}>Model</span>
-                <span className="font-mono text-xs" style={{ color: "var(--muted)" }}>
-                  {agent.model.split("/").pop()?.split(":")[0]}
+                <span className="font-mono text-xs truncate max-w-[120px]" style={{ color: "var(--muted)" }}>
+                  {formatModelCascade(agent.model)}
                 </span>
               </div>
               <div className="flex justify-between">

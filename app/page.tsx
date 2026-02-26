@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AGENTS, getAllAgentStatuses, parseSessionState } from "@/lib/agents";
+import { getAgents, getAllAgentStatuses, parseSessionState } from "@/lib/agents";
 import { fetchCommits } from "@/lib/github";
 import { getPipelineMetrics } from "@/lib/supabase";
 import { getCronJobs } from "@/lib/crons";
@@ -22,7 +22,7 @@ export default async function DashboardPage() {
         Overview
       </h1>
       <p className="text-sm mb-8" style={{ color: "var(--muted-2)" }}>
-        LeadsPanther AI Organization — {AGENTS.length} agents, {crons.length} crons, {skills.length} skills
+        LeadsPanther AI Organization — {statuses.length} agents, {crons.length} crons, {skills.length} skills
       </p>
 
       {/* Pipeline summary cards */}

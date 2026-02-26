@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/tasks", label: "Tasks", icon: "📋" },
   { href: "/crons", label: "Crons", icon: "⏰" },
   { href: "/skills", label: "Skills", icon: "🧠" },
+  { href: "/sops", label: "SOPs", icon: "📖" },
   { href: "/costs", label: "Costs", icon: "💵" },
   { href: "/finance", label: "Finance", icon: "📊" },
   { href: "/products", label: "Products", icon: "📦" },

@@ -1,7 +1,5 @@
 import { getFinancialSummary, getFinancialTransactions } from "@/lib/supabase";
 
-export const revalidate = 120;
-
 export default async function FinancePage() {
   const [summary, txns] = await Promise.all([
     getFinancialSummary(),
@@ -24,8 +22,7 @@ export default async function FinancePage() {
       {noData && (
         <div className="rounded-xl border p-8 text-center mb-8"
           style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--muted-2)" }}>
-          No financial data yet. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY on Vercel, then add transactions
-          via Friedrich&apos;s financial-reporting skill.
+          No financial data yet. Add transactions via Friedrich&apos;s financial-reporting skill.
         </div>
       )}
 

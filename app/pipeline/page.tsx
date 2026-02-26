@@ -1,7 +1,5 @@
 import { getPipelineMetrics, getRecentLeads, getSourceBreakdown } from "@/lib/supabase";
 
-export const revalidate = 120;
-
 export default async function PipelinePage() {
   const [metrics, leads, sources] = await Promise.all([
     getPipelineMetrics(),
@@ -33,7 +31,7 @@ export default async function PipelinePage() {
       {noData && (
         <div className="rounded-xl border p-8 text-center mb-8"
           style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--muted-2)" }}>
-          No pipeline data available. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY on Vercel to connect.
+          No pipeline data yet. Run lead-research or google-maps-prospector to populate.
         </div>
       )}
 

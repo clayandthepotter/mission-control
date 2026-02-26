@@ -21,7 +21,7 @@ async function query<T>(table: string, params: string = ""): Promise<T[]> {
   try {
     const res = await fetch(url, {
       headers: supabaseHeaders(),
-      next: { revalidate: 120 },
+      cache: "no-store",
       signal: AbortSignal.timeout(10_000),
     });
     if (!res.ok) return [];
@@ -84,7 +84,7 @@ async function countRows(table: string, filter: string): Promise<number> {
         ...supabaseHeaders(),
         Prefer: "count=exact",
       },
-      next: { revalidate: 120 },
+      cache: "no-store",
       signal: AbortSignal.timeout(10_000),
     });
     const range = res.headers.get("content-range");

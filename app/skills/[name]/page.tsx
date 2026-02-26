@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getSkillDetail, AGENT_NAMES } from "@/lib/skills";
+import { getSkillDetail, AGENT_NAMES, CATEGORY_CONFIG } from "@/lib/skills";
 import { AGENT_EMOJIS } from "@/lib/crons";
-
-export const revalidate = 300;
 
 export default async function SkillDetailPage({
   params,

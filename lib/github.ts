@@ -29,6 +29,60 @@ export async function fetchFile(path: string): Promise<string | null> {
   }
 }
 
+/** Fetch file SHA (needed for updates) */
+export async function fetchFileSha(path: string): Promise<string | null> {
+  try {
+    const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}?ref=${BRANCH}`;
+    const res = await fetch(url, {
+      headers: { ...headers(), Accept: "application/vnd.github.v3+json" },
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return (data as { sha: string }).sha;
+  } catch {
+    return null;
+  }
+}
+
+/** Update a file on GitHub via commit */
+export async function updateFileOnGitHub(
+  path: string,
+  content: string,
+  message: string,
+): Promise<boolean> {
+  const pat = process.env.GITHUB_PAT;
+  if (!pat) return false;
+
+  const sha = await fetchFileSha(path);
+  const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`;
+
+  // btoa doesn't exist in Node — use Buffer
+  const encoded = Buffer.from(content, "utf-8").toString("base64");
+
+  const body: Record<string, unknown> = {
+    message,
+    content: encoded,
+    branch: BRANCH,
+  };
+  if (sha) body.sha = sha;
+
+  try {
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        ...headers(),
+        Accept: "application/vnd.github.v3+json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 /** Fetch recent commits (proxy for agent activity) */
 export async function fetchCommits(
   limit = 20,

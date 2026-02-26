@@ -17,7 +17,32 @@
 **Priority:** Low
 **Complexity:** High
 
+### Drag-and-drop task board
+**Description:** Add drag-and-drop functionality to the kanban board so tasks can be moved between columns by dragging
+**Priority:** Medium
+**Complexity:** Medium
+
+### Markdown rendering in knowledge browser
+**Description:** Render markdown files with proper formatting (headings, lists, links, code blocks) instead of raw pre-formatted text
+**Priority:** Medium
+**Complexity:** Low
+
 ## Completed
+
+### BMHQ-inspired Mission Control overhaul
+**Description:** 5-column kanban task board, create task form, task stage API, enhanced cron page, rich skills page + detail, knowledge browser, daily notes, agent assigned jobs section
+**Priority:** High
+**Complexity:** High
+
+### Weekly model audit skill + cron
+**Description:** Created model-audit skill with 3-tier stack philosophy and weekly cron job. Approval chain: Rene suggests → Alfred relays → Clayton approves → Alfred applies
+**Priority:** High
+**Complexity:** Medium
+
+### Refactor cron payloads to skill references
+**Description:** Created 7 skill files and refactored all 24 cron job payloads from inline text to skill references
+**Priority:** High
+**Complexity:** Medium
 
 ### Scaffold Next.js app
 **Description:** Initialize mission-control project with Next.js 16, Tailwind CSS 4, and TypeScript

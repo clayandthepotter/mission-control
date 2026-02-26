@@ -1,132 +1,210 @@
-import { fetchFile } from "@/lib/github";
+import Link from "next/link";
+import { getCronJobs, AGENT_NAMES, AGENT_EMOJIS, STAGES, humanSchedule, relativeTime } from "@/lib/crons";
+import { TaskCard } from "@/app/components/TaskCard";
 
-export const revalidate = 120;
+export const revalidate = 60;
 
-interface TodoItem {
-  title: string;
-  description: string;
-  priority: string;
-  complexity: string;
-}
+export default async function TasksPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ agent?: string; view?: string }>;
+}) {
+  const params = await searchParams;
+  const jobs = await getCronJobs();
+  const viewMode = params.view === "table" ? "table" : "kanban";
+  const agentFilter = params.agent || "all";
 
-function parseTodoSection(md: string, sectionHeader: string): TodoItem[] {
-  const items: TodoItem[] = [];
-  const sectionIdx = md.indexOf(sectionHeader);
-  if (sectionIdx === -1) return items;
+  const filtered = agentFilter === "all"
+    ? jobs
+    : jobs.filter((j) => j.agentId === agentFilter);
 
-  // Get the content after the section header until the next ## header
-  const afterSection = md.slice(sectionIdx + sectionHeader.length);
-  const nextSection = afterSection.search(/^## /m);
-  const block = nextSection > -1 ? afterSection.slice(0, nextSection) : afterSection;
-
-  // Each task starts with ### 
-  const taskBlocks = block.split(/^### /m).filter(Boolean);
-
-  for (const tb of taskBlocks) {
-    const lines = tb.trim().split("\n");
-    const title = lines[0]?.trim() || "Untitled";
-    const descMatch = tb.match(/\*\*Description:\*\*\s*(.+)/);
-    const prioMatch = tb.match(/\*\*Priority:\*\*\s*(.+)/);
-    const compMatch = tb.match(/\*\*Complexity:\*\*\s*(.+)/);
-
-    items.push({
-      title,
-      description: descMatch?.[1]?.trim() || "",
-      priority: prioMatch?.[1]?.trim() || "—",
-      complexity: compMatch?.[1]?.trim() || "—",
-    });
-  }
-
-  return items;
-}
-
-function priorityColor(p: string): string {
-  const low = p.toLowerCase();
-  if (low.includes("critical") || low.includes("high")) return "text-red-400";
-  if (low.includes("medium")) return "text-amber-400";
-  if (low.includes("low")) return "text-blue-400";
-  return "text-neutral-400";
-}
-
-export default async function TasksPage() {
-  const todoMd = await fetchFile("TODO.md");
-
-  const pending = todoMd ? parseTodoSection(todoMd, "## Pending") : [];
-  const completed = todoMd ? parseTodoSection(todoMd, "## Completed") : [];
+  const agentIds = [...new Set(jobs.map((j) => j.agentId))].sort();
 
   return (
-    <div className="px-6 py-8 max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold tracking-tight mb-1" style={{ fontFamily: "var(--font-display)" }}>Task Board</h1>
-      <p className="text-sm mb-8" style={{ color: "var(--muted-2)" }}>Organization TODOs</p>
-        {!todoMd && (
-          <div className="rounded-xl p-8 text-center" style={{ background: "var(--paper)", border: "1px solid var(--border)", color: "var(--muted-2)" }}>
-            No TODO.md found in the repository.
-          </div>
-        )}
+    <div className="px-6 py-8 max-w-[1600px] mx-auto">
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
+          Task Board
+        </h1>
+        <Link
+          href="/tasks/new"
+          className="rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+          style={{ background: "var(--accent)", color: "var(--background)" }}
+        >
+          + New Task
+        </Link>
+      </div>
+      <p className="text-sm mb-6" style={{ color: "var(--muted-2)" }}>
+        {filtered.length} jobs — drag tasks through stages
+      </p>
 
-        {todoMd && (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {/* Pending Column */}
-            <div>
-              <div className="mb-4 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-amber-400" />
-                <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-                  Pending ({pending.length})
-                </h2>
-              </div>
-              <div className="space-y-3">
-                {pending.length === 0 && (
-                  <div className="rounded-xl border p-4 text-center text-sm" style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--muted-2)" }}>
-                    All clear!
-                  </div>
-                )}
-                {pending.map((item, i) => (
-                  <div key={i} className="rounded-xl border p-4" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-                    <div className="font-medium text-sm">{item.title}</div>
-                    {item.description && (
-                      <div className="mt-1 text-xs line-clamp-2" style={{ color: "var(--muted-2)" }}>{item.description}</div>
-                    )}
-                    <div className="mt-3 flex gap-3 text-xs">
-                      <span className={priorityColor(item.priority)}>{item.priority}</span>
-                      <span style={{ color: "var(--muted-2)" }}>·</span>
-                      <span style={{ color: "var(--muted-2)" }}>{item.complexity}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Completed Column */}
-            <div>
-              <div className="mb-4 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-                  Completed ({completed.length})
-                </h2>
-              </div>
-              <div className="space-y-3">
-                {completed.length === 0 && (
-                  <div className="rounded-xl p-4 text-center text-sm" style={{ background: "var(--paper)", border: "1px solid var(--border)", color: "var(--muted-2)" }}>
-                    Nothing completed yet.
-                  </div>
-                )}
-                {completed.map((item, i) => (
-                  <div key={i} className="rounded-xl p-4 opacity-70" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}>
-                    <div className="font-medium text-sm line-through">{item.title}</div>
-                    {item.description && (
-                      <div className="mt-1 text-xs line-clamp-2" style={{ color: "var(--muted-2)" }}>{item.description}</div>
-                    )}
-                    <div className="mt-3 flex gap-3 text-xs">
-                      <span style={{ color: "var(--muted-2)" }}>{item.priority}</span>
-                      <span style={{ color: "var(--muted-2)" }}>·</span>
-                      <span style={{ color: "var(--muted-2)" }}>{item.complexity}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+      {/* Filter bar */}
+      <div className="flex items-center gap-3 mb-6 flex-wrap">
+        <div className="flex items-center gap-2 text-sm">
+          <span style={{ color: "var(--muted-2)" }}>Agent:</span>
+          <div className="flex flex-wrap gap-1">
+            <Link
+              href={`/tasks?view=${viewMode}`}
+              className="rounded-full px-3 py-1 text-xs transition-colors"
+              style={{
+                background: agentFilter === "all" ? "var(--accent)" : "var(--surface)",
+                color: agentFilter === "all" ? "var(--background)" : "var(--muted)",
+              }}
+            >
+              All
+            </Link>
+            {agentIds.map((aid) => (
+              <Link
+                key={aid}
+                href={`/tasks?agent=${aid}&view=${viewMode}`}
+                className="rounded-full px-3 py-1 text-xs transition-colors"
+                style={{
+                  background: agentFilter === aid ? "var(--accent)" : "var(--surface)",
+                  color: agentFilter === aid ? "var(--background)" : "var(--muted)",
+                }}
+              >
+                {AGENT_EMOJIS[aid] ?? ""} {AGENT_NAMES[aid] ?? aid}
+              </Link>
+            ))}
           </div>
-        )}
+        </div>
+        <div className="ml-auto flex gap-1">
+          <Link
+            href={`/tasks?agent=${agentFilter}&view=kanban`}
+            className="rounded-lg px-3 py-1 text-xs"
+            style={{
+              background: viewMode === "kanban" ? "var(--surface)" : "transparent",
+              color: viewMode === "kanban" ? "var(--foreground)" : "var(--muted-2)",
+            }}
+          >
+            Kanban
+          </Link>
+          <Link
+            href={`/tasks?agent=${agentFilter}&view=table`}
+            className="rounded-lg px-3 py-1 text-xs"
+            style={{
+              background: viewMode === "table" ? "var(--surface)" : "transparent",
+              color: viewMode === "table" ? "var(--foreground)" : "var(--muted-2)",
+            }}
+          >
+            Table
+          </Link>
+        </div>
+      </div>
+
+      {viewMode === "kanban" ? (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+          {STAGES.map((stg, idx) => {
+            const col = filtered.filter((j) => j.stage === stg.id);
+            const prevStg = idx > 0 ? STAGES[idx - 1] : null;
+            const nextStg = idx < STAGES.length - 1 ? STAGES[idx + 1] : null;
+
+            return (
+              <div key={stg.id}>
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full" style={{ background: stg.color }} />
+                  <h2 className="text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
+                    {stg.label} ({col.length})
+                  </h2>
+                </div>
+                <div className="space-y-2">
+                  {col.length === 0 && (
+                    <div
+                      className="rounded-xl border p-4 text-center text-xs"
+                      style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--muted-2)" }}
+                    >
+                      Empty
+                    </div>
+                  )}
+                  {col.map((job) => (
+                    <TaskCard
+                      key={job.id}
+                      id={job.id}
+                      name={job.name}
+                      agentEmoji={AGENT_EMOJIS[job.agentId] ?? ""}
+                      agentName={AGENT_NAMES[job.agentId] ?? job.agentId}
+                      schedule={humanSchedule(job.schedule)}
+                      skillRef={job.skillRef}
+                      lastStatus={job.lastStatus}
+                      lastRunLabel={job.lastRunAtMs ? `Last: ${relativeTime(job.lastRunAtMs)}` : "Never run"}
+                      lastError={job.lastError}
+                      stage={stg.id}
+                      prevStage={prevStg?.id ?? null}
+                      nextStage={nextStg?.id ?? null}
+                      prevLabel={prevStg?.label ?? null}
+                      nextLabel={nextStg?.label ?? null}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        /* TABLE VIEW */
+        <div
+          className="rounded-xl border overflow-hidden"
+          style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+        >
+          <div
+            className="grid grid-cols-8 gap-4 px-5 py-3 text-xs font-medium border-b"
+            style={{ color: "var(--muted-2)", borderColor: "var(--border)" }}
+          >
+            <div className="col-span-2">Job</div>
+            <div>Agent</div>
+            <div>Schedule</div>
+            <div>Skill</div>
+            <div className="text-center">Stage</div>
+            <div className="text-center">Status</div>
+            <div className="text-center">Last Run</div>
+          </div>
+          {filtered.map((job) => {
+            const stg = STAGES.find((s) => s.id === job.stage);
+            return (
+              <div
+                key={job.id}
+                className="grid grid-cols-8 gap-4 px-5 py-3 text-sm border-b last:border-0"
+                style={{ borderColor: "var(--border)" }}
+              >
+                <div className="col-span-2">
+                  <div className="font-medium">{job.name}</div>
+                  <div className="text-xs font-mono mt-0.5" style={{ color: "var(--muted-2)" }}>{job.id}</div>
+                </div>
+                <div className="text-sm" style={{ color: "var(--muted)" }}>
+                  {AGENT_EMOJIS[job.agentId] ?? ""} {AGENT_NAMES[job.agentId] ?? job.agentId}
+                </div>
+                <div className="text-xs" style={{ color: "var(--muted)" }}>{humanSchedule(job.schedule)}</div>
+                <div className="text-xs">
+                  {job.skillRef ? (
+                    <Link href={`/skills/${job.skillRef}`} className="underline" style={{ color: "var(--accent)" }}>
+                      {job.skillRef}
+                    </Link>
+                  ) : (
+                    <span style={{ color: "var(--muted-2)" }}>—</span>
+                  )}
+                </div>
+                <div className="text-center">
+                  <span
+                    className="inline-block rounded-full px-2 py-0.5 text-xs"
+                    style={{ background: `${stg?.color ?? "#64748b"}20`, color: stg?.color ?? "var(--muted-2)" }}
+                  >
+                    {stg?.label ?? job.stage}
+                  </span>
+                </div>
+                <div className="text-center text-xs" style={{ color: "var(--muted-2)" }}>
+                  {job.lastStatus ?? "—"}
+                </div>
+                <div className="text-center text-xs" style={{ color: "var(--muted-2)" }}>
+                  {relativeTime(job.lastRunAtMs)}
+                </div>
+              </div>
+            );
+          })}
+          {filtered.length === 0 && (
+            <div className="p-8 text-center" style={{ color: "var(--muted-2)" }}>No jobs found.</div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

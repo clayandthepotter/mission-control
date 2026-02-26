@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AGENTS, getAgentStatus, parseSessionState } from "@/lib/agents";
 import { fetchCommits } from "@/lib/github";
+import { getCronJobsByAgent, humanSchedule, relativeTime, STAGES } from "@/lib/crons";
 
 export const revalidate = 120;
 
@@ -15,9 +16,10 @@ export default async function AgentDetailPage({
   const agent = AGENTS.find((a) => a.id === id);
   if (!agent) notFound();
 
-  const [status, commits] = await Promise.all([
+  const [status, commits, agentJobs] = await Promise.all([
     getAgentStatus(agent),
     fetchCommits(30),
+    getCronJobsByAgent(id),
   ]);
 
   const fields = status.sessionState ? parseSessionState(status.sessionState) : {};
@@ -118,6 +120,39 @@ export default async function AgentDetailPage({
             )}
           </div>
         </section>
+
+        {/* Assigned Jobs */}
+        {agentJobs.length > 0 && (
+          <section>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider" style={{ color: "var(--muted-2)" }}>Assigned Jobs ({agentJobs.length})</h2>
+            <div className="rounded-xl" style={{ background: "var(--paper)", border: "1px solid var(--border)" }}>
+              {agentJobs.map((job) => {
+                const stg = STAGES.find((s) => s.id === job.stage);
+                return (
+                  <div key={job.id} className="flex items-center gap-4 px-5 py-3" style={{ borderBottom: "1px solid var(--border)" }}>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-medium">{job.name}</div>
+                      <div className="text-xs mt-0.5" style={{ color: "var(--muted-2)" }}>
+                        {humanSchedule(job.schedule)}
+                        {job.skillRef && (
+                          <> · <Link href={`/skills/${job.skillRef}`} className="underline" style={{ color: "var(--accent)" }}>{job.skillRef}</Link></>
+                        )}
+                      </div>
+                    </div>
+                    <span className="rounded-full px-2 py-0.5 text-xs" style={{ background: `${stg?.color ?? "#64748b"}20`, color: stg?.color ?? "var(--muted-2)" }}>
+                      {stg?.label ?? job.stage}
+                    </span>
+                    <div className="text-xs shrink-0" style={{ color: "var(--muted-2)" }}>
+                      {job.lastStatus === "ok" && <span className="h-2 w-2 inline-block rounded-full bg-emerald-400 mr-1" />}
+                      {job.lastStatus === "skipped" && <span className="h-2 w-2 inline-block rounded-full bg-amber-400 mr-1" />}
+                      {relativeTime(job.lastRunAtMs)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* Related Commits */}
         <section>
